@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SNS OTP Auth — Frontend Architecture</title>
+  <style>
+    :root {
+      --aws-dark:   #232f3e;
+      --aws-orange: #ff9900;
+      --aws-blue:   #1a73e8;
+      --aws-teal:   #00a591;
+      --aws-purple: #7b2d8b;
+      --aws-red:    #d13212;
+      --aws-green:  #1d8102;
+      --bg:         #f0f2f5;
+      --surface:    #ffffff;
+      --border:     #d1d5db;
+      --text:       #111827;
+      --muted:      #6b7280;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px 24px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--aws-dark);
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 40px;
+      font-size: 0.95rem;
+    }
+
+    /* ── Section wrapper ── */
+    .section {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 28px 32px;
+    }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--aws-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--aws-orange);
+      display: inline-block;
+    }
+
+    /* ── Layer diagram ── */
+    .layers {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .layer {
+      display: flex;
+      align-items: stretch;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      margin-bottom: 4px;
+    }
+
+    .layer-label {
+      width: 130px;
+      min-width: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 8px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .layer-body {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 14px 16px;
+      align-items: center;
+      background: #fafafa;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      white-space: nowrap;
+    }
+
+    /* layer colors */
+    .l-entry    { background: var(--aws-dark); }
+    .l-routing  { background: #37475a; }
+    .l-pages    { background: var(--aws-orange); }
+    .l-comp     { background: #e07b00; }
+    .l-context  { background: var(--aws-purple); }
+    .l-services { background: var(--aws-blue); }
+    .l-infra    { background: var(--aws-teal); }
+    .l-backend  { background: var(--aws-red); }
+
+    /* chip styles */
+    .chip-dark   { background: #232f3e18; border-color: #232f3e44; color: var(--aws-dark); }
+    .chip-orange { background: #fff3cd;   border-color: #ff990055; color: #7a4300; }
+    .chip-purple { background: #f3e8ff;   border-color: #7b2d8b55; color: var(--aws-purple); }
+    .chip-blue   { background: #dbeafe;   border-color: #1a73e855; color: #1a4fa8; }
+    .chip-teal   { background: #d0f4ef;   border-color: #00a59155; color: #005f53; }
+    .chip-red    { background: #fde8e4;   border-color: #d1321255; color: #7a1a09; }
+    .chip-green  { background: #dcfce7;   border-color: #1d810255; color: #145214; }
+
+    /* ── Flow diagram ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      justify-content: center;
+    }
+
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 0 4px;
+    }
+
+    .flow-box {
+      width: 120px;
+      min-height: 72px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 10px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .flow-icon { font-size: 1.5rem; }
+
+    .flow-arrow {
+      font-size: 1.4rem;
+      color: var(--muted);
+      padding: 0 2px;
+      margin-top: -28px;
+    }
+
+    .flow-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center;
+      max-width: 110px;
+    }
+
+    /* ── File tree ── */
+    .tree {
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.9;
+      background: #1e2433;
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+    .tree-dir    { color: #ff9900; font-weight: 700; }
+    .tree-file   { color: #a8d8ea; }
+    .tree-comment{ color: #6b7280; font-style: italic; }
+    .tree-badge  {
+      display: inline-block;
+      background: #ff990022;
+      border: 1px solid #ff990055;
+      color: #ff9900;
+      font-size: 0.65rem;
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-left: 8px;
+      font-family: sans-serif;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    /* ── Data flow table ── */
+    .data-flow {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .data-flow th {
+      background: var(--aws-dark);
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .data-flow th:first-child { border-radius: 8px 0 0 0; }
+    .data-flow th:last-child  { border-radius: 0 8px 0 0; }
+    .data-flow td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .data-flow tr:last-child td { border-bottom: none; }
+    .data-flow tr:nth-child(even) td { background: #f9fafb; }
+    .data-flow code {
+      background: #f3f4f6;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.8rem;
+      color: var(--aws-dark);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── Security badges ── */
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .sec-card {
+      border-radius: 12px;
+      padding: 16px;
+      border: 1.5px solid var(--border);
+    }
+    .sec-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .sec-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+    .sec-desc  { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Connector arrows between sections ── */
+    .connector {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--aws-orange);
+      margin: -20px 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (max-width: 600px) {
+      .layer-label { width: 80px; min-width: 80px; font-size: 0.65rem; }
+      .flow-box { width: 90px; font-size: 0.72rem; }
+      .flow-arrow { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>⚡ SNS OTP Auth — Frontend Architecture</h1>
+  <p class="subtitle">React 18 · Vite · React Router v6 · Axios · AWS Amplify · Microservice Design</p>
+
+  <!-- ═══════════════════════════════════════════════
+       1. LAYER ARCHITECTURE
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">① Layer Architecture</span>
+    <div class="layers">
+
+      <div class="layer">
+        <div class="layer-label l-entry">Entry Point</div>
+        <div class="layer-body">
+          <span class="chip chip-dark">📄 index.html</span>
+          <span class="chip chip-dark">⚛️ main.jsx</span>
+          <span class="chip chip-dark">🌐 BrowserRouter</span>
+          <span class="chip chip-dark">⚙️ vite.config.js</span>
+          <span class="chip chip-dark">📦 package.json</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-routing">App Shell</div>
+        <div class="layer-body">
+          <span class="chip chip-dark">🧩 App.jsx</span>
+          <span class="chip chip-dark">🛣️ AppRoutes.jsx</span>
+          <span class="chip chip-dark">🔒 ProtectedRoute.jsx</span>
+          <span class="chip chip-dark">↪️ Navigate redirects</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-context">State Layer</div>
+        <div class="layer-body">
+          <span class="chip chip-purple">🔐 AuthContext.jsx</span>
+          <span class="chip chip-purple">🪝 useAuth.js</span>
+          <span class="chip chip-purple">💾 sessionStorage</span>
+          <span class="chip chip-purple">login() / logout()</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-pages">Pages</div>
+        <div class="layer-body">
+          <span class="chip chip-orange">🔑 Login.jsx</span>
+          <span class="chip chip-orange">📊 Dashboard.jsx</span>
+          <span class="chip chip-orange">👤 Profile.jsx</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-comp">Components</div>
+        <div class="layer-body">
+          <span class="chip chip-orange">🔢 OTPInput.jsx</span>
+          <span class="chip chip-orange">⏱️ CountdownTimer.jsx</span>
+          <span class="chip chip-orange">🧭 Navbar.jsx</span>
+          <span class="chip chip-orange">⏳ Loader.jsx</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-services">Service Layer</div>
+        <div class="layer-body">
+          <span class="chip chip-blue">🌐 apiClient.js (Axios)</span>
+          <span class="chip chip-blue">🔑 authService.js</span>
+          <span class="chip chip-blue">📡 JWT interceptor</span>
+          <span class="chip chip-blue">🔄 401 auto-logout</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-infra">Infra / Config</div>
+        <div class="layer-body">
+          <span class="chip chip-teal">☁️ AWS Amplify</span>
+          <span class="chip chip-teal">📋 amplify.yml</span>
+          <span class="chip chip-teal">↪️ _redirects (SPA)</span>
+          <span class="chip chip-teal">🔧 .env (VITE_API_BASE_URL)</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-label l-backend">Backend API</div>
+        <div class="layer-body">
+          <span class="chip chip-red">🚪 API Gateway</span>
+          <span class="chip chip-red">λ Lambda</span>
+          <span class="chip chip-red">📨 AWS SNS (SMS)</span>
+          <span class="chip chip-red">🗄️ DynamoDB / Redis</span>
+          <span class="chip chip-red">🔏 JWT Signing</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#232f3e"></div>Entry / Routing</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7b2d8b"></div>Auth State</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff9900"></div>UI (Pages &amp; Components)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1a73e8"></div>Service Layer</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00a591"></div>Infrastructure</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d13212"></div>Backend (external)</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       2. OTP LOGIN FLOW
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">② OTP Authentication Flow</span>
+    <div class="flow">
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#fff3cd;border-color:#ff9900;">
+          <span class="flow-icon">📱</span>
+          <span>User enters<br/>mobile number</span>
+        </div>
+        <span class="flow-label">Login.jsx Step 1</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#dbeafe;border-color:#1a73e8;">
+          <span class="flow-icon">🌐</span>
+          <span>POST<br/>/api/auth/send-otp</span>
+        </div>
+        <span class="flow-label">authService.js → apiClient</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#fde8e4;border-color:#d13212;">
+          <span class="flow-icon">λ</span>
+          <span>Lambda<br/>invokes SNS</span>
+        </div>
+        <span class="flow-label">Backend microservice</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#dcfce7;border-color:#1d8102;">
+          <span class="flow-icon">💬</span>
+          <span>SMS delivered<br/>to user</span>
+        </div>
+        <span class="flow-label">AWS SNS</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#fff3cd;border-color:#ff9900;">
+          <span class="flow-icon">🔢</span>
+          <span>User enters<br/>6-digit OTP</span>
+        </div>
+        <span class="flow-label">OTPInput.jsx Step 2</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#dbeafe;border-color:#1a73e8;">
+          <span class="flow-icon">✅</span>
+          <span>POST<br/>/api/auth/verify-otp</span>
+        </div>
+        <span class="flow-label">authService.js → apiClient</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#f3e8ff;border-color:#7b2d8b;">
+          <span class="flow-icon">🔐</span>
+          <span>JWT stored<br/>sessionStorage</span>
+        </div>
+        <span class="flow-label">AuthContext.login()</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#d0f4ef;border-color:#00a591;">
+          <span class="flow-icon">📊</span>
+          <span>Redirect to<br/>Dashboard</span>
+        </div>
+        <span class="flow-label">useNavigate('/dashboard')</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3. COMPONENT TREE
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">③ Component Tree</span>
+    <div class="tree">
+<span class="tree-dir">&lt;App&gt;</span>  <span class="tree-comment">── BrowserRouter + AuthProvider</span>
+│
+├── <span class="tree-dir">&lt;AuthProvider&gt;</span>  <span class="tree-badge">Context</span>
+│   └── provides: auth, login(), logout(), isAuthenticated
+│
+└── <span class="tree-dir">&lt;AppRoutes&gt;</span>
+    │
+    ├── <span class="tree-file">/login</span>  →  <span class="tree-dir">&lt;Login&gt;</span>  <span class="tree-badge">Public</span>
+    │              ├── <span class="tree-dir">&lt;OTPInput&gt;</span>        <span class="tree-comment">6-box digit input, paste support</span>
+    │              └── <span class="tree-dir">&lt;CountdownTimer&gt;</span>  <span class="tree-comment">60s resend countdown</span>
+    │
+    └── <span class="tree-dir">&lt;ProtectedRoute&gt;</span>  <span class="tree-badge">Guard</span>  <span class="tree-comment">← redirects to /login if no JWT</span>
+        │
+        ├── <span class="tree-file">/dashboard</span>  →  <span class="tree-dir">&lt;Dashboard&gt;</span>
+        │                  └── <span class="tree-dir">&lt;Navbar&gt;</span>  <span class="tree-comment">links + logout button</span>
+        │
+        └── <span class="tree-file">/profile</span>    →  <span class="tree-dir">&lt;Profile&gt;</span>
+                           └── <span class="tree-dir">&lt;Navbar&gt;</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4. DATA FLOW TABLE
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">④ Data Flow &amp; State Management</span>
+    <table class="data-flow">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Source</th>
+          <th>Action</th>
+          <th>Storage</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Send OTP</td>
+          <td><code>Login.jsx</code></td>
+          <td><code>authService.sendOtp(mobile)</code></td>
+          <td>—</td>
+          <td>SMS delivered via AWS SNS</td>
+        </tr>
+        <tr>
+          <td>Verify OTP</td>
+          <td><code>Login.jsx</code></td>
+          <td><code>authService.verifyOtp(mobile, otp)</code></td>
+          <td>—</td>
+          <td>Backend returns JWT + user object</td>
+        </tr>
+        <tr>
+          <td>Login success</td>
+          <td><code>AuthContext</code></td>
+          <td><code>login(token, user)</code></td>
+          <td><code>sessionStorage</code></td>
+          <td>Navigate to <code>/dashboard</code></td>
+        </tr>
+        <tr>
+          <td>Page refresh</td>
+          <td><code>AuthContext</code> init</td>
+          <td>Read <code>sessionStorage</code></td>
+          <td><code>sessionStorage</code></td>
+          <td>Session restored, no re-login needed</td>
+        </tr>
+        <tr>
+          <td>API request</td>
+          <td><code>apiClient.js</code></td>
+          <td>Axios request interceptor injects JWT</td>
+          <td><code>sessionStorage</code></td>
+          <td><code>Authorization: Bearer &lt;token&gt;</code> header added</td>
+        </tr>
+        <tr>
+          <td>401 response</td>
+          <td><code>apiClient.js</code></td>
+          <td>Axios response interceptor</td>
+          <td><code>sessionStorage.clear()</code></td>
+          <td>Auto-redirect to <code>/login</code></td>
+        </tr>
+        <tr>
+          <td>Logout</td>
+          <td><code>Navbar.jsx</code></td>
+          <td><code>logout()</code> from <code>useAuth</code></td>
+          <td><code>sessionStorage.clear()</code></td>
+          <td>Navigate to <code>/login</code></td>
+        </tr>
+        <tr>
+          <td>Tab closed</td>
+          <td>Browser</td>
+          <td>—</td>
+          <td><code>sessionStorage</code> cleared</td>
+          <td>Session automatically destroyed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5. FILE STRUCTURE
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">⑤ Full Project File Structure</span>
+    <div class="tree">
+<span class="tree-dir">sns-otp-auth/</span>
+│
+├── <span class="tree-dir">public/</span>
+│   └── <span class="tree-file">_redirects</span>              <span class="tree-comment">/* → /index.html 200  (SPA fallback)</span>
+│
+├── <span class="tree-dir">src/</span>
+│   │
+│   ├── <span class="tree-dir">components/</span>             <span class="tree-comment">── Reusable UI atoms</span>
+│   │   ├── <span class="tree-file">Navbar.jsx</span>          <span class="tree-comment">Top nav, active links, logout</span>
+│   │   ├── <span class="tree-file">Loader.jsx</span>          <span class="tree-comment">Full-screen spinner overlay</span>
+│   │   ├── <span class="tree-file">ProtectedRoute.jsx</span>  <span class="tree-comment">JWT guard → redirects to /login</span>
+│   │   ├── <span class="tree-file">OTPInput.jsx</span>        <span class="tree-comment">6-box digit input + paste + backspace</span>
+│   │   └── <span class="tree-file">CountdownTimer.jsx</span>  <span class="tree-comment">60s resend timer, resets on key change</span>
+│   │
+│   ├── <span class="tree-dir">pages/</span>                  <span class="tree-comment">── Route-level page components</span>
+│   │   ├── <span class="tree-file">Login.jsx</span>           <span class="tree-comment">2-step: mobile number → OTP verify</span>
+│   │   ├── <span class="tree-file">Dashboard.jsx</span>       <span class="tree-comment">Welcome, stats, JWT preview</span>
+│   │   └── <span class="tree-file">Profile.jsx</span>         <span class="tree-comment">User details, ready for API extension</span>
+│   │
+│   ├── <span class="tree-dir">context/</span>
+│   │   └── <span class="tree-file">AuthContext.jsx</span>     <span class="tree-comment">Global auth state + login/logout actions</span>
+│   │
+│   ├── <span class="tree-dir">services/</span>               <span class="tree-comment">── API communication layer</span>
+│   │   ├── <span class="tree-file">apiClient.js</span>        <span class="tree-comment">Axios instance, JWT inject, 401 handler</span>
+│   │   └── <span class="tree-file">authService.js</span>      <span class="tree-comment">sendOtp() + verifyOtp() calls</span>
+│   │
+│   ├── <span class="tree-dir">routes/</span>
+│   │   └── <span class="tree-file">AppRoutes.jsx</span>       <span class="tree-comment">Public + ProtectedRoute definitions</span>
+│   │
+│   ├── <span class="tree-dir">hooks/</span>
+│   │   └── <span class="tree-file">useAuth.js</span>          <span class="tree-comment">useContext(AuthContext) convenience hook</span>
+│   │
+│   ├── <span class="tree-file">App.jsx</span>               <span class="tree-comment">BrowserRouter + AuthProvider root</span>
+│   ├── <span class="tree-file">main.jsx</span>              <span class="tree-comment">ReactDOM.createRoot entry</span>
+│   └── <span class="tree-file">index.css</span>             <span class="tree-comment">Design tokens, utilities, responsive</span>
+│
+├── <span class="tree-file">index.html</span>                <span class="tree-comment">Vite HTML entry</span>
+├── <span class="tree-file">vite.config.js</span>            <span class="tree-comment">Vite + React plugin config</span>
+├── <span class="tree-file">amplify.yml</span>              <span class="tree-comment">AWS Amplify CI/CD build spec</span>
+├── <span class="tree-file">package.json</span>             <span class="tree-comment">Dependencies: react, react-router-dom, axios</span>
+├── <span class="tree-file">.env</span>                     <span class="tree-comment">VITE_API_BASE_URL=https://your-api.com</span>
+├── <span class="tree-file">.env.example</span>            <span class="tree-comment">Template for env vars</span>
+├── <span class="tree-file">.gitignore</span>              <span class="tree-comment">node_modules, dist, .env</span>
+└── <span class="tree-file">README.md</span>               <span class="tree-comment">Setup, API contract, Amplify deploy guide</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       6. SECURITY DESIGN
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">⑥ Security Design</span>
+    <div class="security-grid">
+      <div class="sec-card" style="border-color:#ff990055;background:#fff8ee;">
+        <div class="sec-icon">🚫</div>
+        <div class="sec-title">No Direct AWS Calls</div>
+        <div class="sec-desc">React never calls AWS SNS, DynamoDB, or any AWS SDK. All AWS interactions happen exclusively in the backend Lambda.</div>
+      </div>
+      <div class="sec-card" style="border-color:#1a73e855;background:#f0f6ff;">
+        <div class="sec-icon">🔑</div>
+        <div class="sec-title">JWT via Bearer Token</div>
+        <div class="sec-desc">Every protected API request includes <code style="font-size:0.75rem">Authorization: Bearer &lt;token&gt;</code> injected by the Axios request interceptor.</div>
+      </div>
+      <div class="sec-card" style="border-color:#7b2d8b55;background:#fdf4ff;">
+        <div class="sec-icon">💾</div>
+        <div class="sec-title">sessionStorage Scope</div>
+        <div class="sec-desc">JWT lives in sessionStorage — automatically cleared when the browser tab closes. No localStorage persistence reduces attack surface.</div>
+      </div>
+      <div class="sec-card" style="border-color:#d1321255;background:#fff5f3;">
+        <div class="sec-icon">⏱️</div>
+        <div class="sec-title">OTP Expiry + Rate Limit</div>
+        <div class="sec-desc">60-second resend timer in UI prevents spam. Backend enforces TTL and rate limiting on OTP generation independently.</div>
+      </div>
+      <div class="sec-card" style="border-color:#1d810255;background:#f0fdf4;">
+        <div class="sec-icon">🔄</div>
+        <div class="sec-title">Auto 401 Logout</div>
+        <div class="sec-desc">Axios response interceptor detects 401 Unauthorized, clears sessionStorage, and redirects to login — no manual handling needed per page.</div>
+      </div>
+      <div class="sec-card" style="border-color:#00a59155;background:#f0faf9;">
+        <div class="sec-icon">🌐</div>
+        <div class="sec-title">HTTPS + CORS</div>
+        <div class="sec-desc">All API calls are made over HTTPS. CORS is enforced on the API Gateway, ensuring only your Amplify domain can call the backend.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       7. AMPLIFY DEPLOYMENT
+  ════════════════════════════════════════════════ -->
+  <div class="section">
+    <span class="section-title">⑦ AWS Amplify Deployment Pipeline</span>
+    <div class="flow" style="justify-content:flex-start; gap:0; flex-wrap:nowrap; overflow-x:auto; padding-bottom:8px;">
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#e8f0fe;border-color:#1a73e8;width:110px;">
+          <span class="flow-icon">📁</span>
+          <span>Git Push<br/>(GitHub)</span>
+        </div>
+        <span class="flow-label">Trigger</span>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#fff3cd;border-color:#ff9900;width:110px;">
+          <span class="flow-icon">☁️</span>
+          <span>Amplify<br/>CI Trigger</span>
+        </div>
+        <span class="flow-label">amplify.yml</span>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#f3e8ff;border-color:#7b2d8b;width:110px;">
+          <span class="flow-icon">📦</span>
+          <span>npm install<br/>+ npm build</span>
+        </div>
+        <span class="flow-label">Build phase</span>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#d0f4ef;border-color:#00a591;width:110px;">
+          <span class="flow-icon">🗂️</span>
+          <span>dist/<br/>artifacts</span>
+        </div>
+        <span class="flow-label">Output</span>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#fde8e4;border-color:#d13212;width:110px;">
+          <span class="flow-icon">🌍</span>
+          <span>Deploy to<br/>Amplify CDN</span>
+        </div>
+        <span class="flow-label">CloudFront + S3</span>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="flow-box" style="background:#dcfce7;border-color:#1d8102;width:110px;">
+          <span class="flow-icon">✅</span>
+          <span>Live URL<br/>HTTPS</span>
+        </div>
+        <span class="flow-label">Production</span>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px; background:#1e2433; border-radius:10px; padding:16px 20px;">
+      <p style="color:#ff9900; font-size:0.8rem; font-weight:700; margin-bottom:10px;">Amplify Rewrite Rule (required for SPA routing)</p>
+      <code style="color:#a8d8ea; font-size:0.85rem; font-family:'Courier New',monospace; display:block;">
+        [ { "source": "/&lt;*&gt;", "target": "/index.html", "status": "200" } ]
+      </code>
+    </div>
+  </div>
+
+  <p style="text-align:center; color:var(--muted); font-size:0.8rem; margin-top:8px; padding-bottom:20px;">
+    Generated for: SNS OTP Auth · React 18 · Vite 5 · React Router v6 · AWS Amplify
+  </p>
+
+</body>
+</html>
