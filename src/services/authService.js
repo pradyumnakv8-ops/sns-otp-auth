@@ -82,6 +82,6 @@ export const verifyOtpWithContext = async (mobileNumber, otp, context, username)
       user: { id: username, name: username, mobileNumber: user.mobileNumber, role: 'User' },
     }
   }
-  const { data } = await apiClient.post('/api/auth/verify-otp', { mobileNumber, otp, context })
+  const { data } = await apiClient.post('/api/auth/verify-otp', { mobileNumber, otp, context, username })
   return data
 }
