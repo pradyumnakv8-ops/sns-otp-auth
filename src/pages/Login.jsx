@@ -133,7 +133,7 @@ export default function Login() {
       {/* ── Left: Lion Image ── */}
       <div className="lion-panel" style={{
         flex: 1,
-        backgroundImage: 'url(https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=800&q=80)',
+        backgroundImage: 'url(https://images.unsplash.com/photo-1602491453631-e2a5ad90a131?w=800&q=80)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         position: 'relative',
@@ -147,9 +147,9 @@ export default function Login() {
           background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
         }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h2 style={{ color: '#ff9900', fontSize: '2rem', fontWeight: 800, marginBottom: 8 }}>SNS Auth</h2>
-          <p style={{ color: '#e5e7eb', fontSize: '1rem', maxWidth: 320, lineHeight: 1.6 }}>
-            Secure OTP authentication powered by AWS SNS
+          <h2 style={{ color: '#ff9900', fontSize: '2rem', fontWeight: 800, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Wildlife of Karnataka</h2>
+          <p style={{ color: '#e5e7eb', fontSize: '1.1rem', maxWidth: 320, lineHeight: 1.6, fontStyle: 'italic' }}>
+            One State, Many World
           </p>
         </div>
       </div>
@@ -175,8 +175,8 @@ export default function Login() {
               </svg>
             </div>
             <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 700 }}>Welcome</h1>
-            <p style={{ color: '#9ca3af', marginTop: 4, fontSize: '0.9rem' }}>
-              Secure authentication powered by AWS SNS
+            <p style={{ color: '#ff9900', marginTop: 4, fontSize: '1rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Karnataka&#39;s Wildlife
             </p>
           </div>
 
