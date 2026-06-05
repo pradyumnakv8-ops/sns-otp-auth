@@ -128,25 +128,57 @@ export default function Login() {
   const submitLabel = { LOGIN: 'Continue', REGISTER: 'Create Account', FORGOT: 'Send OTP' }
 
   return (
-    <div className="page-center" style={{ background: 'linear-gradient(135deg,#232f3e 0%,#37475a 100%)' }}>
-      <div style={{ width: '100%', maxWidth: 440 }}>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
 
-        {/* ── Brand header ── */}
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: 16,
-            background: '#ff9900', display: 'inline-flex',
-            alignItems: 'center', justifyContent: 'center', marginBottom: 12,
-          }}>
-            <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-              <path d="M8 28c6-4 18-4 24 0M20 8v14M14 16l6-8 6 8" stroke="#232f3e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 700 }}>Welcome</h1>
-          <p style={{ color: '#9ca3af', marginTop: 4, fontSize: '0.9rem' }}>
-            Secure authentication powered by AWS SNS
+      {/* ── Left: Lion Image ── */}
+      <div className="lion-panel" style={{
+        flex: 1,
+        backgroundImage: 'url(https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=800&q=80)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'flex-end',
+        padding: 40,
+      }}>
+        {/* Dark overlay */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+        }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h2 style={{ color: '#ff9900', fontSize: '2rem', fontWeight: 800, marginBottom: 8 }}>SNS Auth</h2>
+          <p style={{ color: '#e5e7eb', fontSize: '1rem', maxWidth: 320, lineHeight: 1.6 }}>
+            Secure OTP authentication powered by AWS SNS
           </p>
         </div>
+      </div>
+
+      {/* ── Right: Login Card ── */}
+      <div style={{
+        width: '100%', maxWidth: 480,
+        background: 'linear-gradient(135deg,#232f3e 0%,#37475a 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '40px 32px',
+      }}>
+        <div style={{ width: '100%' }}>
+
+          {/* ── Brand header ── */}
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 16,
+              background: '#ff9900', display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+            }}>
+              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+                <path d="M8 28c6-4 18-4 24 0M20 8v14M14 16l6-8 6 8" stroke="#232f3e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 700 }}>Welcome</h1>
+            <p style={{ color: '#9ca3af', marginTop: 4, fontSize: '0.9rem' }}>
+              Secure authentication powered by AWS SNS
+            </p>
+          </div>
 
         {/* ── Card ── */}
         <div className="card">
@@ -343,6 +375,8 @@ export default function Login() {
         <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.8rem', marginTop: 20 }}>
           Secured by AWS SNS · JWT Authentication
         </p>
+
+        </div>
       </div>
     </div>
   )
