@@ -128,57 +128,33 @@ export default function Login() {
   const submitLabel = { LOGIN: 'Continue', REGISTER: 'Create Account', FORGOT: 'Send OTP' }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      backgroundImage: 'url(https://karnatakatourism.org/wp-content/uploads/2021/07/Kabini-Spotted-Deer.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+      position: 'relative',
+    }}>
 
-      {/* ── Left: Lion Image ── */}
-      <div className="lion-panel" style={{
-        flex: 1,
-        backgroundImage: 'url(https://images.unsplash.com/photo-1602491453631-e2a5ad90a131?w=800&q=80)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'flex-end',
-        padding: 40,
-      }}>
-        {/* Dark overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
-        }} />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h2 style={{ color: '#ff9900', fontSize: '2rem', fontWeight: 800, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Wildlife of Karnataka</h2>
-          <p style={{ color: '#e5e7eb', fontSize: '1.1rem', maxWidth: 320, lineHeight: 1.6, fontStyle: 'italic' }}>
-            One State, Many World
+      {/* Dark overlay */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'rgba(0,0,0,0.45)',
+      }} />
+
+      <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1 }}>
+
+        {/* ── Brand header ── */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 700 }}>Welcome</h1>
+          <p style={{ color: '#ff9900', marginTop: 4, fontSize: '1rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Karnataka&#39;s Wildlife
           </p>
         </div>
-      </div>
-
-      {/* ── Right: Login Card ── */}
-      <div style={{
-        width: '100%', maxWidth: 480,
-        background: 'linear-gradient(135deg,#232f3e 0%,#37475a 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '40px 32px',
-      }}>
-        <div style={{ width: '100%' }}>
-
-          {/* ── Brand header ── */}
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: 16,
-              background: '#ff9900', display: 'inline-flex',
-              alignItems: 'center', justifyContent: 'center', marginBottom: 12,
-            }}>
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-                <path d="M8 28c6-4 18-4 24 0M20 8v14M14 16l6-8 6 8" stroke="#232f3e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 700 }}>Welcome</h1>
-            <p style={{ color: '#ff9900', marginTop: 4, fontSize: '1rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Karnataka&#39;s Wildlife
-            </p>
-          </div>
 
         {/* ── Card ── */}
         <div className="card">
@@ -372,11 +348,10 @@ export default function Login() {
 
         </div>
 
-        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.8rem', marginTop: 20 }}>
+        <p style={{ textAlign: 'center', color: '#e5e7eb', fontSize: '0.8rem', marginTop: 20 }}>
           Secured by AWS SNS · JWT Authentication
         </p>
 
-        </div>
       </div>
     </div>
   )
