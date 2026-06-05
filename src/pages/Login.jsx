@@ -154,6 +154,9 @@ export default function Login() {
           <p style={{ color: '#ff9900', marginTop: 4, fontSize: '1rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Karnataka&#39;s Wildlife
           </p>
+          <p style={{ color: '#e5e7eb', marginTop: 6, fontSize: '0.95rem', fontStyle: 'italic' }}>
+            One State, Many World
+          </p>
         </div>
 
         {/* ── Card ── */}
