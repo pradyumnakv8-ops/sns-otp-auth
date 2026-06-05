@@ -134,7 +134,7 @@ export default function Login() {
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'flex-end',
       padding: 24,
       position: 'relative',
