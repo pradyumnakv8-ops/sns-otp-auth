@@ -135,7 +135,7 @@ export default function Login() {
       backgroundPosition: 'center',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-end',
       padding: 24,
       position: 'relative',
     }}>
@@ -143,10 +143,10 @@ export default function Login() {
       {/* Dark overlay */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'rgba(0,0,0,0.45)',
+        background: 'rgba(0,0,0,0.35)',
       }} />
 
-      <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1 }}>
+      <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1, marginRight: 48 }}>
 
         {/* ── Brand header ── */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
